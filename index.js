@@ -39,6 +39,7 @@ const run = async() => {
         await client.connect();
         
         const usersCollection = client.db("BankOfBD").collection("Users");
+        const accountCollection = client.db("BankOfBD").collection("accounts");
 
 
         
@@ -109,9 +110,13 @@ const run = async() => {
             res.send({admin: isAdmin});
         })
 
-
-
-
+        // Create an Account
+         
+         app.post('/account', async (req, res) => {
+            const order = req.body;
+            const result = await accountCollection.insertOne(order);
+            res.send(result);
+        })
 
     }
     finally{
