@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -33,16 +33,16 @@ const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.ne
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-const run = async() => {
-    try{
+const run = async () => {
+    try {
 
         await client.connect();
-        
+
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountCollection = client.db("BankOfBD").collection("accounts");
 
 
-        
+
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
@@ -76,12 +76,12 @@ const run = async() => {
             res.send(result)
         })
 
-        
+
         // post admin by email
         app.put('/user/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = {upsert: true};
+            const options = { upsert: true };
             const updateDoc = {
                 $set: { role: 'admin' }
             };
@@ -94,7 +94,7 @@ const run = async() => {
         app.put('/user/admin/remove/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = {upsert: true};
+            const options = { upsert: true };
             const updateDoc = {
                 $set: { role: '' }
             };
@@ -103,23 +103,77 @@ const run = async() => {
         })
 
         // get admin
-        app.get('/user/admin/:email', async(req, res) => {
+        app.get('/user/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const user = await usersCollection.findOne({email: email});
+            const user = await usersCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
-            res.send({admin: isAdmin});
+            res.send({ admin: isAdmin });
         })
 
         // Create an Account
-         
-         app.post('/account', async (req, res) => {
+
+        app.post('/account', async (req, res) => {
             const order = req.body;
             const result = await accountCollection.insertOne(order);
             res.send(result);
         })
 
+        // Deposit Balance and withdraw balance
+
+        app.put("/account/:accountId", async (req, res) => {
+
+            const id = req.params.accountId;            
+            const updateBalance = req.body;
+
+            if(updateBalance.depositBalance < 0 || updateBalance.depositBalance === null ){
+                return
+            }                       
+
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateAccountDoc = {
+                $set: {
+                    balance: updateBalance.depositBalance
+                }
+            };
+            const result = await accountCollection.updateOne(
+                filter,
+                updateAccountDoc,
+                options
+            );
+            res.send(result);
+        });
+
+        // Load account - individual
+
+        app.get('/accounts', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = accountCollection.find(query);
+            const accounts = await cursor.toArray();
+            res.send(accounts);
+        })
+
+        // Load all accounts
+
+        app.get('/allaccounts', async (req, res) => {            
+            const query = {};
+            const cursor = accountCollection.find(query);
+            const accounts = await cursor.toArray();
+            res.send(accounts);
+        })
+
+        // Delete Account         
+
+         app.delete('/account/:id', async (req, res)=>{
+            const id = req.params.id;
+            const query = { _id: ObjectId(id)};
+            const result = await accountCollection.deleteOne(query);
+            res.send(result);
+        })
+
     }
-    finally{
+    finally {
 
     }
 }
@@ -129,7 +183,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("Running React Bank of BD Server");
+    res.send("Bank of BD Server Running........");
 });
 
 app.listen(port, () => {
