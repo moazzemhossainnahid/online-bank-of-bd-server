@@ -122,13 +122,12 @@ const run = async () => {
 
         app.put("/account/:accountId", async (req, res) => {
 
-            const id = req.params.accountId;            
+            const id = req.params.accountId;
             const updateBalance = req.body;
 
-            if(updateBalance.depositBalance < 0 || updateBalance.depositBalance === null ){
+            if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
                 return
-            }                       
-
+            }
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updateAccountDoc = {
@@ -136,15 +135,29 @@ const run = async () => {
                     balance: updateBalance.depositBalance
                 }
             };
-            const result = await accountCollection.updateOne(
-                filter,
-                updateAccountDoc,
-                options
-            );
+            const result = await accountCollection.updateOne(filter, updateAccountDoc, options);
             res.send(result);
         });
 
-        // Load account - individual
+        // Send Money put api
+
+        app.put("/accountno/:accountno", async (req, res) => {
+
+            const accountno = parseInt(req.params.accountno);
+            const addBalance = req.body;
+            const filter = { AccNo: accountno };
+            const options = { upsert: true };
+            const updateAccountDoc = {
+                $set: {
+                    balance: addBalance.transeferAmount,
+                }
+            };
+            const result = await accountCollection.updateOne(filter, updateAccountDoc, options);
+            res.send(result);
+        });
+
+
+        // Load Account by account number params
 
         app.get('/accounts', async (req, res) => {
             const email = req.query.email;
@@ -154,9 +167,58 @@ const run = async () => {
             res.send(accounts);
         })
 
+
+        // Load account - individual
+
+        app.get('/accounts', async (req, res) => {
+
+            const email = req.query.email;
+            const accountno = parseInt(req.query.accountno);
+
+            if (email) {
+
+                const query = { email: email };
+                const cursor = accountCollection.find(query);
+                const accounts = await cursor.toArray();
+                res.send(accounts);
+            }
+            if (accountno) {
+
+                const query = { AccNo: accountno };
+                const cursor = accountCollection.find(query);
+                const accounts = await cursor.toArray();
+                res.send(accounts);
+            }
+
+        })
+
+        // Load account by account number
+
+
+        app.get('/accountno', async (req, res) => {
+
+            const accountno = parseInt(req.query.accountno);
+            const query = { AccNo: accountno };
+            const cursor = accountCollection.find(query);
+            const accounts = await cursor.toArray();
+            res.send(accounts);
+        })
+
+
+
+
+       /*  app.get('/accounts', async (req, res) => {
+            const accountno = parseInt(req.query.accountno);
+            console.log(accountno)
+            const query = { AccNo: accountno };
+            const cursor = accountCollection.find(query);
+            const accounts = await cursor.toArray();
+            res.send(accounts);
+        })
+ */
         // Load all accounts
 
-        app.get('/allaccounts', async (req, res) => {            
+        app.get('/allaccounts', async (req, res) => {
             const query = {};
             const cursor = accountCollection.find(query);
             const accounts = await cursor.toArray();
@@ -165,9 +227,9 @@ const run = async () => {
 
         // Delete Account         
 
-         app.delete('/account/:id', async (req, res)=>{
+        app.delete('/account/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await accountCollection.deleteOne(query);
             res.send(result);
         })
