@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
+const nodemailer = require("nodemailer");
+const  emailTransport = require('nodemailer-sendgrid-transport');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -29,9 +31,49 @@ const verifyToken = (req, res, next) => {
 }
 
 
+
+
+
 const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// send email 
+
+const  emailOptions = {
+    auth: {
+      api_key: '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'
+    }
+  }
+const  emailClient = nodemailer.createTransport(emailTransport(emailOptions));
+const sendEmail=(data)=>{
+    const {email,transcation, amount }=data
+    const  emailTemplate = {
+        from: process.env.SENDGRID_EMAIL,
+        to: email,
+        subject: 'Online Bank BD Your Money Transcation Complete!',
+        text: 'Your Money Transcation Complete! 400Tk from your account Money has been deposited ',
+        html: `
+        <div style="display: flex; flex-direction: column; justify-content: center;  align-items: center;">
+            <h2 style="color: green; margin:10px;">Hello! Tanvir Alam,</h2>
+            <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
+            <p style="margin:10px; font-size: 18px;">400Tk from your account Money has been deposited</p>
+            <p style="margin:10px;">That's Your Money Transcation: 28ue98fhw4ywhir8w9e</p>
+            <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
+            <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
+
+        </div>
+        `
+      };
+      client.sendMail(email, function(err, info){
+        if (err ){
+          console.log(err);
+        }
+        else {
+          console.log(info);
+        }
+    })
+
+}
 
 const run = async() => {
     try{
@@ -126,7 +168,9 @@ const run = async() => {
 
 run().catch(console.dir);
 
-
+app.get("/email",(req,res)=>{
+    res.send({message: true})
+})
 
 app.get('/', (req, res) => {
     res.send("Running React Bank of BD Server");
