@@ -39,7 +39,7 @@ const run = async () => {
         await client.connect();
 
         const usersCollection = client.db("BankOfBD").collection("Users");
-        const accountCollection = client.db("BankOfBD").collection("accounts");
+        const accountsCollection = client.db("BankOfBD").collection("accounts");
 
 
 
@@ -114,7 +114,7 @@ const run = async () => {
 
         app.post('/account', async (req, res) => {
             const order = req.body;
-            const result = await accountCollection.insertOne(order);
+            const result = await accountsCollection.insertOne(order);
             res.send(result);
         })
 
@@ -122,12 +122,12 @@ const run = async () => {
 
         app.put("/account/:accountId", async (req, res) => {
 
-            const id = req.params.accountId;            
+            const id = req.params.accountId;
             const updateBalance = req.body;
 
-            if(updateBalance.depositBalance < 0 || updateBalance.depositBalance === null ){
+            if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
                 return
-            }                       
+            }
 
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
@@ -136,7 +136,7 @@ const run = async () => {
                     balance: updateBalance.depositBalance
                 }
             };
-            const result = await accountCollection.updateOne(
+            const result = await accountsCollection.updateOne(
                 filter,
                 updateAccountDoc,
                 options
@@ -149,28 +149,45 @@ const run = async () => {
         app.get('/accounts', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
-            const cursor = accountCollection.find(query);
+            const cursor = accountsCollection.find(query);
             const accounts = await cursor.toArray();
             res.send(accounts);
+        })
+        // get account by id- individual
+
+        app.get('/account/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await accountsCollection.findOne(query);
+            res.send(result);
         })
 
         // Load all accounts
 
-        app.get('/allaccounts', async (req, res) => {            
+        app.get('/allaccounts', async (req, res) => {
             const query = {};
-            const cursor = accountCollection.find(query);
+            const cursor = accountsCollection.find(query);
             const accounts = await cursor.toArray();
             res.send(accounts);
         })
 
         // Delete Account         
 
-         app.delete('/account/:id', async (req, res)=>{
+        app.delete('/account/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id)};
-            const result = await accountCollection.deleteOne(query);
+            const query = { _id: ObjectId(id) };
+            const result = await accountsCollection.deleteOne(query);
             res.send(result);
         })
+
+        // Transfer money
+        app.get('/account/:acno', async (req, res) => {
+            const transferAcc = req.params.acno;
+            const query = { AccNo: transferAcc};
+            const result = await accountsCollection.findOne(query);
+            res.send(result);
+        })
+
 
     }
     finally {
