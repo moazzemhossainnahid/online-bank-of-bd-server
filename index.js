@@ -135,7 +135,7 @@ const run = async () => {
                     balance: updateBalance.depositBalance
                 }
             };
-            const result = await accountCollection.updateOne(filter, updateAccountDoc, options);
+            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
             res.send(result);
         });
 
@@ -149,10 +149,10 @@ const run = async () => {
             const options = { upsert: true };
             const updateAccountDoc = {
                 $set: {
-                    balance: addBalance.transeferAmount,
+                    balance: addBalance.transferAmount
                 }
             };
-            const result = await accountCollection.updateOne(filter, updateAccountDoc, options);
+            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
             res.send(result);
         });
 
@@ -186,14 +186,14 @@ const run = async () => {
             if (email) {
 
                 const query = { email: email };
-                const cursor = accountCollection.find(query);
+                const cursor = accountsCollection.find(query);
                 const accounts = await cursor.toArray();
                 res.send(accounts);
             }
             if (accountno) {
 
                 const query = { AccNo: accountno };
-                const cursor = accountCollection.find(query);
+                const cursor = accountsCollection.find(query);
                 const accounts = await cursor.toArray();
                 res.send(accounts);
             }
@@ -207,9 +207,8 @@ const run = async () => {
 
             const accountno = parseInt(req.query.accountno);
             const query = { AccNo: accountno };
-            const cursor = accountCollection.find(query);
-            const accounts = await cursor.toArray();
-            res.send(accounts);
+            const result = await accountsCollection.findOne(query);
+            res.send(result);
         })
 
 
@@ -238,7 +237,7 @@ const run = async () => {
         app.delete('/account/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await accountCollection.deleteOne(query);
+            const result = await accountsCollection.deleteOne(query);
             res.send(result);
         })
 
