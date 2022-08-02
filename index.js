@@ -176,7 +176,7 @@ const run = async () => {
         })
 
 
-        // Load account - individual
+        // Load account - individual - My Accounts Route
 
         app.get('/accounts', async (req, res) => {
 
@@ -211,18 +211,6 @@ const run = async () => {
             res.send(result);
         })
 
-
-
-
-       /*  app.get('/accounts', async (req, res) => {
-            const accountno = parseInt(req.query.accountno);
-            console.log(accountno)
-            const query = { AccNo: accountno };
-            const cursor = accountCollection.find(query);
-            const accounts = await cursor.toArray();
-            res.send(accounts);
-        })
- */
         // Load all accounts
 
         app.get('/allaccounts', async (req, res) => {
