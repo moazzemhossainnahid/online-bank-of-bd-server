@@ -46,25 +46,25 @@ const  emailOptions = {
   }
 const  emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail=(data)=>{
-    const {email,transcation, amount }=data
+    const { name, AccNo, balance,  phone, }=data
     const  emailTemplate = {
-        from: process.env.SENDGRID_EMAIL,
-        to: email,
-        subject: 'Online Bank BD Your Money Transcation Complete!',
-        text: 'Your Money Transcation Complete! 400Tk from your account Money has been deposited ',
+        from: 'mdmasudrony@gmail.com',
+        to: 'hunnimoefbunnief@gmail.com',
+        subject: `Hello, ${name} your current Account Balance ${balance} `,
+        text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
-        <div style="display: flex; flex-direction: column; justify-content: center;  align-items: center;">
-            <h2 style="color: green; margin:10px;">Hello! Tanvir Alam,</h2>
+        <div style="padding: 20px ;">
+            <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
+            <h2 style="color: green; margin:10px;">Hello!${name},</h2>
             <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
-            <p style="margin:10px; font-size: 18px;">400Tk from your account Money has been deposited</p>
-            <p style="margin:10px;">That's Your Money Transcation: 28ue98fhw4ywhir8w9e</p>
+            <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decoration: underline">28ue98fhw4ywhir8w9e</span></p>
             <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
 
         </div>
         `
       };
-      client.sendMail(email, function(err, info){
+      emailClient.sendMail(emailTemplate, function(err, info){
         if (err ){
           console.log(err);
         }
@@ -74,6 +74,8 @@ const sendEmail=(data)=>{
     })
 
 }
+///////
+
 
 const run = async() => {
     try{
@@ -168,7 +170,10 @@ const run = async() => {
 
 run().catch(console.dir);
 
-app.get("/email",(req,res)=>{
+app.post("/email",(req,res)=>{
+    const moneyTranscation = req.body;
+    sendEmail(moneyTranscation)
+    // console.log(moneyTranscation);
     res.send({message: true})
 })
 
