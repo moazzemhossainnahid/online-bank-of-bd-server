@@ -69,7 +69,7 @@ const sendEmail=(data)=>{
           console.log(err);
         }
         else {
-          console.log(info);
+          console.log("send email ",info);
         }
     })
 
@@ -173,7 +173,7 @@ run().catch(console.dir);
 app.post("/email",(req,res)=>{
     const moneyTranscation = req.body;
     sendEmail(moneyTranscation)
-    // console.log(moneyTranscation);
+    console.log(moneyTranscation);
     res.send({message: true})
 })
 
