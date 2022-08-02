@@ -33,16 +33,17 @@ const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.ne
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-const run = async() => {
-    try{
+const run = async () => {
+    try {
 
         await client.connect();
-        
+
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountCollection = client.db("BankOfBD").collection("accounts");
+        const feedbackCollection = client.db("BankOfBD").collection("feedback");
 
 
-        
+
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
@@ -76,12 +77,12 @@ const run = async() => {
             res.send(result)
         })
 
-        
+
         // post admin by email
         app.put('/user/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = {upsert: true};
+            const options = { upsert: true };
             const updateDoc = {
                 $set: { role: 'admin' }
             };
@@ -94,7 +95,7 @@ const run = async() => {
         app.put('/user/admin/remove/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = {upsert: true};
+            const options = { upsert: true };
             const updateDoc = {
                 $set: { role: '' }
             };
@@ -103,23 +104,42 @@ const run = async() => {
         })
 
         // get admin
-        app.get('/user/admin/:email', async(req, res) => {
+        app.get('/user/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const user = await usersCollection.findOne({email: email});
+            const user = await usersCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
-            res.send({admin: isAdmin});
+            res.send({ admin: isAdmin });
         })
 
         // Create an Account
-         
-         app.post('/account', async (req, res) => {
+
+        app.post('/account', async (req, res) => {
             const order = req.body;
             const result = await accountCollection.insertOne(order);
             res.send(result);
         })
 
+        /*   // feedback post
+  
+          app.post('/feedback', async (req, res) => {
+              const feedback = req.body;
+              const result = await feedbackCollection.insertOne(feedback);
+              res.send(result);
+          })
+  
+          // feedback get
+  
+          app.get('/feedback', async (req, res) => {
+              const query = {};
+              const cursor = feedbackCollection.find(query);
+              const feedback = await cursor.toArray();
+              res.send(feedback)
+          })
+   */
+
+
     }
-    finally{
+    finally {
 
     }
 }
