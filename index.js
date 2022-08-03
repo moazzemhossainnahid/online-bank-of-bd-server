@@ -2,6 +2,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
+const  emailTransport = require('nodemailer-sendgrid-transport');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,6 +35,48 @@ const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.ne
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+// send email 
+
+const emailOptions = {
+    auth: {
+        api_key: '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'
+    }
+}
+const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
+const sendEmail = (data) => {
+    const { name, AccNo, balance, authemail, } = data;
+    const emailTemplate = {
+        from: 'mdmasudrony@gmail.com',
+        to: authemail,
+        subject: `Hello, ${name} your current Account Balance ${balance} `,
+        text: `Your Withdraw complete!, your current Balance ${balance}`,
+        html: `
+        <div style="padding: 20px ;">
+            <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
+            <h2 style="color: green; margin:10px;">Hello!${name},</h2>
+            <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
+            <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
+            <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
+        </div>
+        `
+    };
+
+    console.log("Email Sent");
+    emailClient.sendMail(emailTemplate, function (err, info) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log("send email ", info);
+        }
+    })
+
+}
+///////
+
+
+
 const run = async () => {
     try {
 
@@ -40,6 +84,7 @@ const run = async () => {
 
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountsCollection = client.db("BankOfBD").collection("accounts");
+        const transactionCollection = client.db("BankOfBD").collection("Transaction");
 
 
 
@@ -113,9 +158,11 @@ const run = async () => {
         // Create an Account
 
         app.post('/account', async (req, res) => {
-            const order = req.body;
-            const result = await accountsCollection.insertOne(order);
+            const account = req.body;
+            const result = await accountsCollection.insertOne(account);
+            sendEmail(account);
             res.send(result);
+
         })
 
         // Deposit Balance and withdraw balance
@@ -232,8 +279,15 @@ const run = async () => {
         // Transfer money
         app.get('/account/:acno', async (req, res) => {
             const transferAcc = req.params.acno;
-            const query = { AccNo: transferAcc};
+            const query = { AccNo: transferAcc };
             const result = await accountsCollection.findOne(query);
+            res.send(result);
+        })
+
+        // Statement
+        app.post('/statement', async (req, res) => {
+            const transaction = req.body;
+            const result = await transactionCollection.insertOne(transaction);
             res.send(result);
         })
 
