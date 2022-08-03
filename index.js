@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const nodemailer = require("nodemailer");
-const  emailTransport = require('nodemailer-sendgrid-transport');
+const emailTransport = require('nodemailer-sendgrid-transport');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -84,7 +84,7 @@ const run = async () => {
 
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountsCollection = client.db("BankOfBD").collection("accounts");
-        const transactionCollection = client.db("BankOfBD").collection("Transaction");
+        const statementCollection = client.db("BankOfBD").collection("Transaction");
 
 
 
@@ -213,6 +213,20 @@ const run = async () => {
             const accounts = await cursor.toArray();
             res.send(accounts);
         })
+
+        // Load statement by email
+
+        app.get('/statements', async (req, res) => {
+            
+            const email = req.query.email;
+            const query = { authemail: email };
+            const cursor = statementCollection.find(query);
+            const accounts = await cursor.toArray();
+            res.send(accounts);
+
+
+        })
+
         // get account by id- individual
 
         app.get('/account/:id', async (req, res) => {
@@ -287,7 +301,7 @@ const run = async () => {
         // Statement
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
-            const result = await transactionCollection.insertOne(transaction);
+            const result = await statementCollection.insertOne(transaction);
             res.send(result);
         })
 
