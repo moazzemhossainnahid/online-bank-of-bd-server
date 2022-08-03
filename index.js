@@ -119,7 +119,7 @@ const run = async () => {
             res.send(result);
         })
 
-        /*   // feedback post
+        /*   // feedback post **
   
           app.post('/feedback', async (req, res) => {
               const feedback = req.body;
@@ -127,7 +127,7 @@ const run = async () => {
               res.send(result);
           })
   
-          // feedback get
+          // feedback get **
   
           app.get('/feedback', async (req, res) => {
               const query = {};
