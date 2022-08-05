@@ -311,6 +311,14 @@ const run = async () => {
             res.send(feedback)
         })
 
+        // Delete api feedback **
+
+        app.delete('/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await feedbackCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
