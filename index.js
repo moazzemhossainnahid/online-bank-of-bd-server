@@ -85,6 +85,7 @@ const run = async () => {
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountsCollection = client.db("BankOfBD").collection("accounts");
         const statementCollection = client.db("BankOfBD").collection("Transaction");
+        const feedbackCollection = client.db("BankOfBD").collection("Feedback");
 
 
 
@@ -92,6 +93,7 @@ const run = async () => {
         // post user by email
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
+
             const user = req.body;
             const filter = { email: email };
             const options = { upsert: true };
@@ -304,6 +306,34 @@ const run = async () => {
             const result = await statementCollection.insertOne(transaction);
             res.send(result);
         })
+
+
+        // feedback post **
+
+        app.post('/feedback', async (req, res) => {
+            const feedback = req.body;
+            const result = await feedbackCollection.insertOne(feedback);
+            res.send(result);
+        })
+
+        // feedback get **
+
+        app.get('/feedbacks', async (req, res) => {
+            const query = {};
+            const cursor = feedbackCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
+
+        // Delete api feedback **
+
+        app.delete('/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await feedbackCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
 
     }
