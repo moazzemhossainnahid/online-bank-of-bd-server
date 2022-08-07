@@ -224,7 +224,6 @@ const run = async () => {
             const accounts = await cursor.toArray();
             res.send(accounts);
 
-
         })
 
         // get account by id- individual
