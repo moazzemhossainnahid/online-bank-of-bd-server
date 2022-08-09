@@ -325,6 +325,16 @@ const run = async () => {
             res.send(feedback)
         })
 
+        // feedback get by email**
+
+        app.get('/feedbacks/:email', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = feedbackCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
+
         // Delete api feedback **
 
         app.delete('/feedback/:id', async (req, res) => {
@@ -332,6 +342,19 @@ const run = async () => {
             const query = { _id: ObjectId(id) };
             const result = await feedbackCollection.deleteOne(query);
             res.send(result);
+        })
+
+        // Edit api Feedback **
+        app.patch('/feedback/:id', async(req, res) => {
+            const id = req.params.id;
+            const feedback = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert: true};
+            const updateDoc = {
+                $set : feedback
+            }
+            const result = await feedbackCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
         })
 
 
