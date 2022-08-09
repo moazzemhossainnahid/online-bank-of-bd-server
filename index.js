@@ -151,7 +151,7 @@ const run = async() => {
         app.get('/user/admin/:email', async(req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({email: email});
-            const isAdmin = user.role === 'admin';
+            const isAdmin = user?.role === 'admin';
             res.send({admin: isAdmin});
         })
 
@@ -165,6 +165,7 @@ const run = async() => {
         //  post blogs api data
         app.post("/blog",async(req,res)=>{
             const blog = req.body;
+            console.log(blog);
             const blogPost = await blogsCollection.insertOne(blog);
             res.send(blogPost)
         })
@@ -181,6 +182,28 @@ const run = async() => {
             const blog = await blogsCollection.findOne(query);
             res.send(blog)
         })
+        // update blog API 
+        app.put("/blog/:id",async(req,res)=>{
+            const id =req.params.id;
+            const blog= req.body
+            console.log(blog);
+            const filter = {_id: ObjectId(id)};
+
+            const options = {upsert: true};
+            const updateDoc = {
+                $set: blog
+            };
+            const result = await blogsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+        // blog delete API 
+        app.delete("/blog/:id",async(req,res)=>{
+            const id=req.params.id
+            const query = {_id:ObjectId(id)}
+            const deleteBlog = await blogsCollection.deleteOne(query)
+            res.send(deleteBlog)
+        })
 
 
 
@@ -192,12 +215,12 @@ const run = async() => {
 
 run().catch(console.dir);
 
-app.post("/email",(req,res)=>{
-    const moneyTranscation = req.body;
-    sendEmail(moneyTranscation)
-    console.log(moneyTranscation);
-    res.send({message: true})
-})
+// app.post("/email",(req,res)=>{
+//     const moneyTranscation = req.body;
+//     sendEmail(moneyTranscation)
+//     console.log(moneyTranscation);
+//     res.send({message: true})
+// })
 
 app.get('/', (req, res) => {
     res.send("Running React Bank of BD Server");
