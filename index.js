@@ -84,6 +84,8 @@ const run = async() => {
         
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountCollection = client.db("BankOfBD").collection("accounts")
+        const blogsCollection = client.db("BankOfBD").collection("blogs")
+        
 
         
 
@@ -160,6 +162,20 @@ const run = async() => {
             const result = await accountCollection.insertOne(order);
             res.send(result);
         })
+        //  post blogs api data
+        app.post("/blog",async(req,res)=>{
+            const blog = req.body;
+            const blogPost = await blogsCollection.insertOne(blog);
+            res.send(blogPost)
+        })
+        // get blogs data api 
+        app.get("/blogs",async(req,res)=>{
+            const query= {}
+            const blogs = await blogsCollection.find(query).toArray();
+            res.send(blogs)
+        })
+
+
 
     }
     finally{
