@@ -39,23 +39,25 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const emailOptions = {
     auth: {
-        api_key: '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'
+        api_key: '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'
     }
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    const { name, AccNo, balance, authemail, } = data;
+    console.log(data)
+    const { senderAccount, statement, deposit, withdraw, date, email } = data;
     const emailTemplate = {
-        from: 'mdmasudrony@gmail.com',
-        to: authemail,
-        subject: `Hello, ${name} your current Account Balance ${balance} `,
-        text: `Your Withdraw complete!, your current Balance ${balance}`,
+        from: 'sabbirshuvo006@gmail.com',
+        to: email,
+        subject: `Hello, ${senderAccount} your current Account Balance ${statement} `,
+        text: `Your Withdraw complete!, your current Balance ${statement}`,
         html: `
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
-            <h2 style="color: green; margin:10px;">Hello!${name},</h2>
-            <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
-            <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <h2 style="color: green; margin:10px;">Hello!${statement},</h2>
+            <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete! ${statement}</p>
+            <p style="margin:10px;">That's Your Money Transcation:${statement} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <a href="http://localhost:3000/dashboard/statement">tap tap</a>
             <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
@@ -162,7 +164,7 @@ const run = async () => {
         app.post('/account', async (req, res) => {
             const account = req.body;
             const result = await accountsCollection.insertOne(account);
-            sendEmail(account);
+            // sendEmail(account);
             res.send(result);
 
         })
@@ -173,7 +175,6 @@ const run = async () => {
 
             const id = req.params.accountId;
             const updateBalance = req.body;
-
             if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
                 return
             }
@@ -219,7 +220,7 @@ const run = async () => {
         // Load statement by email
 
         app.get('/statements', async (req, res) => {
-            
+
             const email = req.query.email;
             const query = { authemail: email };
             const cursor = statementCollection.find(query);
@@ -304,6 +305,7 @@ const run = async () => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
+            sendEmail(transaction)
             res.send(result);
         })
 
