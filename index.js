@@ -83,8 +83,7 @@ const run = async() => {
         await client.connect();
         
         const usersCollection = client.db("BankOfBD").collection("Users");
-        const accountCollection = client.db("BankOfBD").collection("accounts");
-
+        const accountCollection = client.db("BankOfBD").collection("accounts")
 
         
 
