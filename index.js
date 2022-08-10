@@ -37,6 +37,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // send email 
 
+// const api = process.env.EMAIL_SENDER_KEY
+// console.log(api)
+
 const emailOptions = {
     auth: {
         api_key: process.env.EMAIL_SENDER_KEY
