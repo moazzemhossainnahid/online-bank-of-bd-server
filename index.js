@@ -186,7 +186,6 @@ const run = async() => {
         app.put("/blog/:id",async(req,res)=>{
             const id =req.params.id;
             const blog= req.body
-            console.log(blog);
             const filter = {_id: ObjectId(id)};
 
             const options = {upsert: true};
