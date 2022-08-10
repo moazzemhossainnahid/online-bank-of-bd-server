@@ -44,21 +44,20 @@ const emailOptions = {
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    console.log(data)
-    const { senderAccount, statement, deposit, withdraw, date, email } = data;
+    // console.log(data)
+    const { senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
-        subject: `Hello, ${senderAccount} your current Account Balance ${statement} `,
-        text: `Your Withdraw complete!, your current Balance ${statement}`,
+        subject: `Hello Dare, your Account ${senderAccount} have ${statement} `,
+        text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
-            <h2 style="color: green; margin:10px;">Hello!${statement},</h2>
-            <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete! ${statement}</p>
-            <p style="margin:10px;">That's Your Money Transcation:${statement} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
-            <a href="http://localhost:3000/dashboard/statement">tap tap</a>
-            <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
+            <h2 style="color: green; margin:10px;">Hello Dare!</h2>
+            <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
+            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
         `
@@ -165,6 +164,7 @@ const run = async () => {
             const account = req.body;
             const result = await accountsCollection.insertOne(account);
             // sendEmail(account);
+            console.log(account)
             res.send(result);
 
         })
