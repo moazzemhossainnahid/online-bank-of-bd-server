@@ -39,7 +39,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const emailOptions = {
     auth: {
-        api_key: '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'
+        api_key: process.env.EMAIL_SENDER_KEY
     }
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
