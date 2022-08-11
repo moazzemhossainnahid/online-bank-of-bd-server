@@ -87,6 +87,7 @@ const run = async () => {
         const statementCollection = client.db("BankOfBD").collection("Transaction");
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
+        const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
 
 
 
@@ -334,6 +335,14 @@ const run = async () => {
             const result = await feedbackCollection.deleteOne(query);
             res.send(result);
         })
+        //Retail Banking loan details
+
+        app.get('/retailbanking', async (req, res) => {
+            const query = {};
+            const cursor = retailbankingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
         //Sme Banking loan details
 
@@ -343,6 +352,15 @@ const run = async () => {
             const result = await cursor.toArray();
             res.send(result)
         })
+
+        app.get('/smebanking/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await smebankingCollection.findOne(query);
+            res.send(result);
+        })
+
+
 
 
 
