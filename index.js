@@ -86,6 +86,7 @@ const run = async () => {
         const accountsCollection = client.db("BankOfBD").collection("accounts");
         const statementCollection = client.db("BankOfBD").collection("Transaction");
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
+        const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
 
 
 
@@ -219,7 +220,7 @@ const run = async () => {
         // Load statement by email
 
         app.get('/statements', async (req, res) => {
-            
+
             const email = req.query.email;
             const query = { authemail: email };
             const cursor = statementCollection.find(query);
@@ -344,6 +345,7 @@ const run = async () => {
             res.send(result);
         })
 
+
         // Edit api Feedback **
         app.patch('/feedback/:id', async(req, res) => {
             const id = req.params.id;
@@ -354,6 +356,15 @@ const run = async () => {
                 $set : feedback
             }
             const result = await feedbackCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+        })
+
+        //Sme Banking loan details
+
+        app.get('/smebanking', async (req, res) => {
+            const query = {};
+            const cursor = smebankingCollection.find(query);
+            const result = await cursor.toArray();
             res.send(result)
         })
 
