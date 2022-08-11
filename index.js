@@ -195,9 +195,6 @@ const run = async () => {
             res.send(result);
         });
 
-
-
-
         //  post blogs api data
         app.post("/blog", async (req, res) => {
                     const blog = req.body;
@@ -251,7 +248,6 @@ const run = async () => {
                     res.send(result);
                 });
 
-
                 // Load Account by account number params
 
                 app.get('/accounts', async (req, res) => {
@@ -273,7 +269,7 @@ const run = async () => {
                     res.send(accounts);
                 })
 
-
+     
         // get account by id- individual
 
         app.get('/account/:id', async (req, res) => {
