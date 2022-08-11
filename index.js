@@ -39,6 +39,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // send email 
 
+<<<<<<< HEAD
 const  emailOptions = {
     auth: {
       api_key: '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'
@@ -51,14 +52,39 @@ const sendEmail=(data)=>{
         from: 'mdmasudrony@gmail.com',
         to: 'hunnimoefbunnief@gmail.com',
         subject: `Hello, ${name} your current Account Balance ${balance} `,
+=======
+// const api = process.env.EMAIL_SENDER_KEY
+// console.log(api)
+
+const emailOptions = {
+    auth: {
+        api_key: process.env.EMAIL_SENDER_KEY
+    }
+}
+const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
+const sendEmail = (data) => {
+    // console.log(data)
+    const { senderAccount, statement, deposit, withdraw, date, balance, email } = data;
+    const emailTemplate = {
+        from: 'sabbirshuvo006@gmail.com',
+        to: email,
+        subject: `Hello Dare, your Account ${senderAccount} have ${statement} `,
+>>>>>>> 4ac271c27463c784e3804550aa716d8465657138
         text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
+<<<<<<< HEAD
             <h2 style="color: green; margin:10px;">Hello!${name},</h2>
             <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
             <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decoration: underline">28ue98fhw4ywhir8w9e</span></p>
             <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
+=======
+            <h2 style="color: green; margin:10px;">Hello Dare!</h2>
+            <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
+            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} BDT. <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
+>>>>>>> 4ac271c27463c784e3804550aa716d8465657138
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
 
         </div>
@@ -161,10 +187,19 @@ const run = async() => {
         })
 
         // Create an Account
+<<<<<<< HEAD
          
          app.post('/account', async (req, res) => {
             const order = req.body;
             const result = await accountCollection.insertOne(order);
+=======
+
+        app.post('/account', async (req, res) => {
+            const account = req.body;
+            const result = await accountsCollection.insertOne(account);
+            // sendEmail(account);
+            console.log(account)
+>>>>>>> 4ac271c27463c784e3804550aa716d8465657138
             res.send(result);
         })
         //  post blogs api data
@@ -193,9 +228,27 @@ const run = async() => {
             const blog= req.body
             const filter = {_id: ObjectId(id)};
 
+<<<<<<< HEAD
             const options = {upsert: true};
             const updateDoc = {
                 $set: blog
+=======
+        // Deposit Balance and withdraw balance
+
+        app.put("/account/:accountId", async (req, res) => {
+
+            const id = req.params.accountId;
+            const updateBalance = req.body;
+            if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
+                return
+            }
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateAccountDoc = {
+                $set: {
+                    balance: updateBalance.depositBalance
+                }
+>>>>>>> 4ac271c27463c784e3804550aa716d8465657138
             };
             const result = await blogsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
@@ -317,6 +370,7 @@ const run = async() => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
+            sendEmail(transaction)
             res.send(result);
         })
 
