@@ -34,7 +34,7 @@ const verifyToken = (req, res, next) => {
 
 
 
-const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 // send email 
