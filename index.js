@@ -2,9 +2,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+require('dotenv').config()
 const nodemailer = require("nodemailer");
 const emailTransport = require('nodemailer-sendgrid-transport');
-require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -31,9 +31,11 @@ const verifyToken = (req, res, next) => {
 }
 
 
-const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 // send email 
 
@@ -80,7 +82,6 @@ const sendEmail = (data) => {
 ///////
 
 
-
 const run = async () => {
     try {
 
@@ -90,6 +91,10 @@ const run = async () => {
         const accountsCollection = client.db("BankOfBD").collection("accounts");
         const statementCollection = client.db("BankOfBD").collection("Transaction");
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
+        const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
+        const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
+        const blogsCollection = client.db("BankOfBD").collection("blogs")
+
 
 
 
@@ -97,7 +102,6 @@ const run = async () => {
         // post user by email
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
-
             const user = req.body;
             const filter = { email: email };
             const options = { upsert: true };
@@ -167,9 +171,8 @@ const run = async () => {
             const account = req.body;
             const result = await accountsCollection.insertOne(account);
             // sendEmail(account);
-            console.log(account)
+            // console.log(account)
             res.send(result);
-
         })
 
         // Deposit Balance and withdraw balance
@@ -192,6 +195,42 @@ const run = async () => {
             res.send(result);
         });
 
+        //  post blogs api data
+        app.post("/blog", async (req, res) => {
+            const blog = req.body;
+            console.log(blog);
+            const blogPost = await blogsCollection.insertOne(blog);
+            res.send(blogPost)
+        })
+
+        // get blogs data api 
+        app.get("/blogs", async (req, res) => {
+            const query = {}
+            const blogs = await blogsCollection.find(query).toArray();
+            res.send(blogs)
+        })
+
+        // get blog api data 
+        app.get("/blog/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const blog = await blogsCollection.findOne(query);
+            res.send(blog)
+        })
+
+        // update blog API 
+        app.put("/blog/:id", async (req, res) => {
+            const id = req.params.id;
+            const blog = req.body
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: blog
+            };
+            const result = await blogsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
         // Send Money put api
 
         app.put("/accountno/:accountno", async (req, res) => {
@@ -208,7 +247,6 @@ const run = async () => {
             const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
             res.send(result);
         });
-
 
         // Load Account by account number params
 
@@ -229,9 +267,8 @@ const run = async () => {
             const cursor = statementCollection.find(query);
             const accounts = await cursor.toArray();
             res.send(accounts);
-
-
         })
+
 
         // get account by id- individual
 
@@ -330,6 +367,16 @@ const run = async () => {
             res.send(feedback)
         })
 
+        // feedback get by email**
+
+        app.get('/feedbacks/:email', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = feedbackCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
+
         // Delete api feedback **
 
         app.delete('/feedback/:id', async (req, res) => {
@@ -337,7 +384,55 @@ const run = async () => {
             const query = { _id: ObjectId(id) };
             const result = await feedbackCollection.deleteOne(query);
             res.send(result);
+
         })
+        // blog delete API 
+        app.delete("/blog/:id", async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const deleteBlog = await blogsCollection.deleteOne(query)
+            res.send(deleteBlog)
+        })
+        //Retail Banking loan details
+
+        app.get('/retailbanking', async (req, res) => {
+            const query = {};
+            const cursor = retailbankingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+
+        // Edit api Feedback **
+        app.patch('/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedback = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: feedback
+            }
+            const result = await feedbackCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+        })
+
+        //Sme Banking loan details
+
+        app.get('/smebanking', async (req, res) => {
+            const query = {};
+            const cursor = smebankingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        app.get('/smebanking/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await smebankingCollection.findOne(query);
+            res.send(result);
+        })
+
+
 
 
 
@@ -349,10 +444,8 @@ const run = async () => {
 
 run().catch(console.dir);
 
-
-
 app.get('/', (req, res) => {
-    res.send("Bank of BD Server Running........");
+    res.send("Running React Bank of BD Server");
 });
 
 app.listen(port, () => {
