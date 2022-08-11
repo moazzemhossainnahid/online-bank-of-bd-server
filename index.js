@@ -2,9 +2,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
-const emailTransport = require('nodemailer-sendgrid-transport');
 require('dotenv').config()
+const nodemailer = require("nodemailer");
+const  emailTransport = require('nodemailer-sendgrid-transport');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -31,23 +31,25 @@ const verifyToken = (req, res, next) => {
 }
 
 
+
+
+
 const uri = "mongodb+srv://bankofbd:qWuk0tgacUUr0s8k@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-
 // send email 
 
-const emailOptions = {
+const  emailOptions = {
     auth: {
-        api_key: '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'
+      api_key: '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'
     }
-}
-const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
-const sendEmail = (data) => {
-    const { name, AccNo, balance, authemail, } = data;
-    const emailTemplate = {
+  }
+const  emailClient = nodemailer.createTransport(emailTransport(emailOptions));
+const sendEmail=(data)=>{
+    const { name, AccNo, balance,  phone, }=data
+    const  emailTemplate = {
         from: 'mdmasudrony@gmail.com',
-        to: authemail,
+        to: 'hunnimoefbunnief@gmail.com',
         subject: `Hello, ${name} your current Account Balance ${balance} `,
         text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
@@ -55,20 +57,19 @@ const sendEmail = (data) => {
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
             <h2 style="color: green; margin:10px;">Hello!${name},</h2>
             <p style="font-size: 20px; margin:10px;">Your Money Transcation Complete!</p>
-            <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <p style="margin:10px;">That's Your Money Transcation:${AccNo} <span style="text-decoration: underline">28ue98fhw4ywhir8w9e</span></p>
             <a href="" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
+
         </div>
         `
-    };
-
-    console.log("Email Sent");
-    emailClient.sendMail(emailTemplate, function (err, info) {
-        if (err) {
-            console.log(err);
+      };
+      emailClient.sendMail(emailTemplate, function(err, info){
+        if (err ){
+          console.log(err);
         }
         else {
-            console.log("send email ", info);
+          console.log("send email ",info);
         }
     })
 
@@ -76,26 +77,26 @@ const sendEmail = (data) => {
 ///////
 
 
-
-const run = async () => {
-    try {
+const run = async() => {
+    try{
 
         await client.connect();
-
+        
         const usersCollection = client.db("BankOfBD").collection("Users");
         const accountsCollection = client.db("BankOfBD").collection("accounts");
         const statementCollection = client.db("BankOfBD").collection("Transaction");
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
+        const blogsCollection = client.db("BankOfBD").collection("blogs")
+        
 
 
-
+        
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
-
             const user = req.body;
             const filter = { email: email };
             const options = { upsert: true };
@@ -125,12 +126,12 @@ const run = async () => {
             res.send(result)
         })
 
-
+        
         // post admin by email
         app.put('/user/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = { upsert: true };
+            const options = {upsert: true};
             const updateDoc = {
                 $set: { role: 'admin' }
             };
@@ -143,7 +144,7 @@ const run = async () => {
         app.put('/user/admin/remove/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const options = { upsert: true };
+            const options = {upsert: true};
             const updateDoc = {
                 $set: { role: '' }
             };
@@ -152,41 +153,51 @@ const run = async () => {
         })
 
         // get admin
-        app.get('/user/admin/:email', async (req, res) => {
+        app.get('/user/admin/:email', async(req, res) => {
             const email = req.params.email;
-            const user = await usersCollection.findOne({ email: email });
+            const user = await usersCollection.findOne({email: email});
             const isAdmin = user?.role === 'admin';
-            res.send({ admin: isAdmin });
+            res.send({admin: isAdmin});
         })
 
         // Create an Account
-
-        app.post('/account', async (req, res) => {
-            const account = req.body;
-            const result = await accountsCollection.insertOne(account);
-            sendEmail(account);
+         
+         app.post('/account', async (req, res) => {
+            const order = req.body;
+            const result = await accountCollection.insertOne(order);
             res.send(result);
-
         })
+        //  post blogs api data
+        app.post("/blog",async(req,res)=>{
+            const blog = req.body;
+            console.log(blog);
+            const blogPost = await blogsCollection.insertOne(blog);
+            res.send(blogPost)
+        })
+        // get blogs data api 
+        app.get("/blogs",async(req,res)=>{
+            const query= {}
+            const blogs = await blogsCollection.find(query).toArray();
+            res.send(blogs)
+        })
+        // get blog api data 
+        app.get("/blog/:id",async(req,res)=>{
+            const id =req.params.id;
+            const query = {_id: ObjectId(id)};
+            const blog = await blogsCollection.findOne(query);
+            res.send(blog)
+        })
+        // update blog API 
+        app.put("/blog/:id",async(req,res)=>{
+            const id =req.params.id;
+            const blog= req.body
+            const filter = {_id: ObjectId(id)};
 
-        // Deposit Balance and withdraw balance
-
-        app.put("/account/:accountId", async (req, res) => {
-
-            const id = req.params.accountId;
-            const updateBalance = req.body;
-
-            if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
-                return
-            }
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateAccountDoc = {
-                $set: {
-                    balance: updateBalance.depositBalance
-                }
+            const options = {upsert: true};
+            const updateDoc = {
+                $set: blog
             };
-            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
+            const result = await blogsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
 
@@ -344,6 +355,14 @@ const run = async () => {
             const query = { _id: ObjectId(id) };
             const result = await feedbackCollection.deleteOne(query);
             res.send(result);
+
+        })
+        // blog delete API 
+        app.delete("/blog/:id",async(req,res)=>{
+            const id=req.params.id
+            const query = {_id:ObjectId(id)}
+            const deleteBlog = await blogsCollection.deleteOne(query)
+            res.send(deleteBlog)
         })
         //Retail Banking loan details
 
@@ -389,17 +408,15 @@ const run = async () => {
 
 
     }
-    finally {
+    finally{
 
     }
 }
 
 run().catch(console.dir);
 
-
-
 app.get('/', (req, res) => {
-    res.send("Bank of BD Server Running........");
+    res.send("Running React Bank of BD Server");
 });
 
 app.listen(port, () => {
