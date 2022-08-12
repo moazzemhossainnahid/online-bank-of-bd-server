@@ -143,6 +143,14 @@ const run = async () => {
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
+        //get admin api 
+        app.get("/user/isAdmin/:email",async(req,res)=>{
+            const email = req.params.email;
+            const query = {email: email}
+            const adminUser = await usersCollection.findOne(query);
+            const isAdmin = adminUser.role === "admin"
+            res.send({role: isAdmin})
+        })
 
 
         // remove admin by email
