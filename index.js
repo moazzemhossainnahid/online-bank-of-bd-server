@@ -67,7 +67,6 @@ const sendEmail = (data) => {
         </div>
         `
     };
-
     console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
@@ -77,9 +76,9 @@ const sendEmail = (data) => {
             console.log("send email ", info);
         }
     })
-
 }
 ///////
+
 
 
 const run = async () => {
@@ -345,7 +344,8 @@ const run = async () => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
-            sendEmail(transaction)
+            // sendEmail(transaction)
+            console.log(transaction)
             res.send(result);
         })
 
