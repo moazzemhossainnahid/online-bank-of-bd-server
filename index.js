@@ -93,6 +93,7 @@ const run = async () => {
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
         const blogsCollection = client.db("BankOfBD").collection("blogs")
+        const contactCollection = client.db("BankOfBD").collection("contact")
 
 
 
@@ -433,7 +434,22 @@ const run = async () => {
         })
 
 
+        // Contact us emails
 
+        app.post('/contact', async (req, res) => {
+            const contact = req.body;
+            const result = await contactCollection.insertOne(contact);
+            res.send(result);
+        })
+
+        // contact get api
+
+        app.get('/contacts', async (req, res) => {
+            const query = {};
+            const cursor = contactCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
 
 
     }
