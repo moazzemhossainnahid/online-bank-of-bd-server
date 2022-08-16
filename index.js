@@ -232,8 +232,15 @@ const run = async () => {
                     const blog = req.body
                     const filter = { _id: ObjectId(id) };
                     const options = { upsert: true };
+                    console.log(blog);
                     const updateDoc = {
-                        $set: blog
+                        $set: {
+                            title:blog.title,
+                            category:blog.category,
+                            description: blog.description,
+                            picture:blog.picture,
+                            date:blog.date
+                        }
                     };
                     const result = await blogsCollection.updateOne(filter, updateDoc, options);
                     res.send(result);
