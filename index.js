@@ -401,8 +401,20 @@ const run = async () => {
                     const deleteBlog = await blogsCollection.deleteOne(query)
                     res.send(deleteBlog)
                 })
+        
+        app.patch("/blog/comment/:id",async(req,res)=>{
+            const id=req.params.id
+            const filter = {_id:ObjectId(id)}
+            const comment = req.body;
+            const updateDoc= {
+                $set:{
+                    comment:comment
+                }
+            }
+            const result = await blogsCollection.updateOne(filter,updateDoc)
+            res.send(result)
+        })
         //Retail Banking loan details
-
         app.get('/retailbanking', async (req, res) => {
                     const query = {};
                     const cursor = retailbankingCollection.find(query);
