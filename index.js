@@ -233,8 +233,15 @@ const run = async () => {
                     const blog = req.body
                     const filter = { _id: ObjectId(id) };
                     const options = { upsert: true };
+                    console.log(blog);
                     const updateDoc = {
-                        $set: blog
+                        $set: {
+                            title:blog.title,
+                            category:blog.category,
+                            description: blog.description,
+                            picture:blog.picture,
+                            date:blog.date
+                        }
                     };
                     const result = await blogsCollection.updateOne(filter, updateDoc, options);
                     res.send(result);
@@ -407,8 +414,20 @@ const run = async () => {
                     const deleteBlog = await blogsCollection.deleteOne(query)
                     res.send(deleteBlog)
                 })
+        
+        app.patch("/blog/comment/:id",async(req,res)=>{
+            const id=req.params.id
+            const filter = {_id:ObjectId(id)}
+            const comment = req.body;
+            const updateDoc= {
+                $set:{
+                    comment:comment
+                }
+            }
+            const result = await blogsCollection.updateOne(filter,updateDoc)
+            res.send(result)
+        })
         //Retail Banking loan details
-
         app.get('/retailbanking', async (req, res) => {
                     const query = {};
                     const cursor = retailbankingCollection.find(query);
