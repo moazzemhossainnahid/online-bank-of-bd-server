@@ -276,22 +276,16 @@ const run = async () => {
 
         // Load statement by email
 
-        app.get('/statements', async (req, res) => {
+        app.get('/statements', async (req, res) => {      
 
-<<<<<<< HEAD
-        })
 
-=======
                     const email = req.query.email;
                     const query = { authemail: email };
                     const cursor = statementCollection.find(query);
                     const accounts = await cursor.toArray();
                     res.send(accounts);
                 })
-
      
->>>>>>> 266640d2a31e99af8dbf6b0337db5667e5c94395
-        // get account by id- individual
 
         app.get('/account/:id', async (req, res) => {
                     const id = req.params.id;
