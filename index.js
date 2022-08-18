@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
 const emailTransport = require('nodemailer-sendgrid-transport');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -97,7 +98,17 @@ const run = async () => {
 
 
 
-
+        // deposti card payment intent api 
+        app.post("/create-payment-intent",verifyToken  ,async(req,res)=>{
+            const {inputBalance}=req.body;
+            const amount = inputBalance*100;
+            const paymentIntent =await stripe.paymentIntents.create({
+                amount:amount,
+                currency: "usd",
+                payment_method_types:["card"]
+            });
+            res.send({clientSecret:paymentIntent.client_secret})
+        })
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
@@ -229,7 +240,7 @@ const run = async () => {
         // update blog API 
         app.put("/blog/:id", async (req, res) => {
                     const id = req.params.id;
-                    const blog = req.body
+                    const blog = req.body;
                     const filter = { _id: ObjectId(id) };
                     const options = { upsert: true };
                     console.log(blog);
