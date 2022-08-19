@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
 const emailTransport = require('nodemailer-sendgrid-transport');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -97,7 +98,17 @@ const run = async () => {
 
 
 
-
+        // deposti card payment intent api 
+        app.post("/create-payment-intent", verifyToken, async (req, res) => {
+            const { inputBalance } = req.body;
+            const amount = inputBalance * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"]
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        })
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
@@ -143,14 +154,14 @@ const run = async () => {
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
-        
+
         //get admin api 
-        app.get("/user/isAdmin/:email",async(req,res)=>{
+        app.get("/user/isAdmin/:email", async (req, res) => {
             const email = req.params.email;
-            const query = {email: email}
+            const query = { email: email }
             const adminUser = await usersCollection.findOne(query);
             const isAdmin = adminUser.role === "admin"
-            res.send({role: isAdmin})
+            res.send({ role: isAdmin })
         })
 
 
@@ -229,12 +240,20 @@ const run = async () => {
 
         // update blog API 
         app.put("/blog/:id", async (req, res) => {
+
             const id = req.params.id;
-            const blog = req.body
+            const blog = req.body;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
+            console.log(blog);
             const updateDoc = {
-                $set: blog
+                $set: {
+                    title: blog.title,
+                    category: blog.category,
+                    description: blog.description,
+                    picture: blog.picture,
+                    date: blog.date
+                }
             };
             const result = await blogsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
@@ -398,13 +417,26 @@ const run = async () => {
         })
         // blog delete API 
         app.delete("/blog/:id", async (req, res) => {
+
             const id = req.params.id
             const query = { _id: ObjectId(id) }
             const deleteBlog = await blogsCollection.deleteOne(query)
             res.send(deleteBlog)
         })
-        //Retail Banking loan details
 
+        app.patch("/blog/comment/:id", async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const comment = req.body;
+            const updateDoc = {
+                $set: {
+                    comment: comment
+                }
+            }
+            const result = await blogsCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+        //Retail Banking loan details
         app.get('/retailbanking', async (req, res) => {
             const query = {};
             const cursor = retailbankingCollection.find(query);
