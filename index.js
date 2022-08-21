@@ -396,7 +396,7 @@ const run = async () => {
         // feedback get by email**
 
         app.get('/feedbacks/:email', async (req, res) => {
-                    const email = req.query.email;
+                    const email = req.params.email;
                     const query = { email: email };
                     const cursor = feedbackCollection.find(query);
                     const feedback = await cursor.toArray();
@@ -412,6 +412,7 @@ const run = async () => {
                     res.send(result);
 
                 })
+
         // blog delete API 
         app.delete("/blog/:id", async (req, res) => {
                     const id = req.params.id
