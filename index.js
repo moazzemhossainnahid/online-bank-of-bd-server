@@ -99,7 +99,7 @@ const run = async () => {
 
 
         // deposti card payment intent api 
-        app.post("/create-payment-intent",verifyToken  ,async(req,res)=>{
+        app.post("/create-payment-intent" ,async(req,res)=>{
             const {inputBalance}=req.body;
             const amount = inputBalance*100;
             const paymentIntent =await stripe.paymentIntents.create({
@@ -121,7 +121,7 @@ const run = async () => {
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
-            res.send({ result, accessToken: token })
+            res.send({ result, accessToken: token });
         })
 
 
@@ -421,7 +421,7 @@ const run = async () => {
                 })
         
         app.patch("/blog/comment/:id",async(req,res)=>{
-            const id=req.params.id
+            const id=req.params.id;
             const filter = {_id:ObjectId(id)}
             const comment = req.body;
             const updateDoc= {
