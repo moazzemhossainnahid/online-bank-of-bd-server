@@ -83,6 +83,18 @@ const sendEmail = (data) => {
 ///////
 
 
+const verifyAdmin = async (req, res, next) => {
+    const requester = req.decoded.email;
+    const requesterAccount = await usersCollection.findOne({ email: requester });
+    if (requesterAccount.role === 'admin') {
+      next();
+    }
+    else {
+      res.status(403).send({ message: 'forbidden' });
+    }
+  }
+
+
 const run = async () => {
     try {
 
@@ -94,7 +106,8 @@ const run = async () => {
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
-        const blogsCollection = client.db("BankOfBD").collection("blogs")
+        const blogsCollection = client.db("BankOfBD").collection("blogs");
+        const profilesCollection = client.db("PCHubBD").collection("Profiles");
 
 
 
@@ -470,8 +483,27 @@ const run = async () => {
                     const result = await smebankingCollection.findOne(query);
                     res.send(result);
                 })
-
-
+                
+        // post profile by email
+        app.put('/profile/:email', verifyToken, async(req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = {email: email};
+            const options = {upsert : true};
+            const updatedDoc = {
+                $set: profile,
+            };
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+  
+        // get profile by email
+        app.get('/profile/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email}
+            const profile = await profilesCollection.findOne(query);
+            res.send(profile);
+        })
 
 
 
