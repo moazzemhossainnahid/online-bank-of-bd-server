@@ -49,7 +49,7 @@ const emailOptions = {
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    // console.log(data)
+    console.log(data)
     const { senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
@@ -61,7 +61,7 @@ const sendEmail = (data) => {
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
             <h2 style="color: green; margin:10px;">Hello Dare!</h2>
             <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
-            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} BDT. <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} USD. <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
             <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
@@ -345,7 +345,7 @@ const run = async () => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
-            // sendEmail(transaction)
+            sendEmail(transaction)
             console.log(transaction)
             res.send(result);
         })
