@@ -38,6 +38,7 @@ const verifyToken = (req, res, next) => {
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
 // send email 
 
 // const api = process.env.EMAIL_SENDER_KEY
@@ -50,8 +51,8 @@ const emailOptions = {
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    // console.log(data)
-    const { senderAccount, statement, deposit, withdraw, date, balance, email } = data;
+    console.log(data)
+    const { _id, senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
@@ -62,13 +63,12 @@ const sendEmail = (data) => {
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
             <h2 style="color: green; margin:10px;">Hello Dare!</h2>
             <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
-            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} BDT. <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <p style="margin:10px;">That's Your Money Transcation Amount: <strong>${deposit || withdraw} $USD.</strong>. <span style="text-decornation: underline">${_id}</span></p>
             <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
         `
     };
-
     console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
@@ -78,9 +78,21 @@ const sendEmail = (data) => {
             console.log("send email ", info);
         }
     })
-
 }
 ///////
+
+
+
+const verifyAdmin = async (req, res, next) => {
+    const requester = req.decoded.email;
+    const requesterAccount = await usersCollection.findOne({ email: requester });
+    if (requesterAccount.role === 'admin') {
+      next();
+    }
+    else {
+      res.status(403).send({ message: 'forbidden' });
+    }
+  }
 
 
 const run = async () => {
@@ -94,7 +106,10 @@ const run = async () => {
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
-        const blogsCollection = client.db("BankOfBD").collection("blogs")
+        const blogsCollection = client.db("BankOfBD").collection("blogs");
+        const profilesCollection = client.db("BankOfBD").collection("Profiles");
+        const contactCollection = client.db("BankOfBD").collection("contact")
+
 
 
 
@@ -107,7 +122,7 @@ const run = async () => {
                 currency: "usd",
                 payment_method_types:["card"]
             });
-            res.send({clientSecret:paymentIntent.client_secret})
+            res.send({clientSecret:paymentIntent.client_secret});
         })
 
         // post user by email
@@ -369,11 +384,12 @@ const run = async () => {
 
         // Statement
         app.post('/statement', async (req, res) => {
-                    const transaction = req.body;
-                    const result = await statementCollection.insertOne(transaction);
-                    sendEmail(transaction)
-                    res.send(result);
-                })
+            const transaction = req.body;
+            const result = await statementCollection.insertOne(transaction);
+            sendEmail(transaction)
+            console.log(transaction)
+            res.send(result);
+        })
 
 
         // feedback post **
@@ -396,7 +412,7 @@ const run = async () => {
         // feedback get by email**
 
         app.get('/feedbacks/:email', async (req, res) => {
-                    const email = req.query.email;
+                    const email = req.params.email;
                     const query = { email: email };
                     const cursor = feedbackCollection.find(query);
                     const feedback = await cursor.toArray();
@@ -412,6 +428,7 @@ const run = async () => {
                     res.send(result);
 
                 })
+
         // blog delete API 
         app.delete("/blog/:id", async (req, res) => {
                     const id = req.params.id
@@ -469,8 +486,46 @@ const run = async () => {
                     const result = await smebankingCollection.findOne(query);
                     res.send(result);
                 })
+                
+        // post profile by email
+        app.put('/profile/:email', verifyToken, async(req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = {email: email};
+            const options = {upsert : true};
+            const updatedDoc = {
+                $set: profile,
+            };
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+  
+        // get profile by email
+        app.get('/profile/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email}
+            const profile = await profilesCollection.findOne(query);
+            res.send(profile);
+        })
 
+        
+        // Contact us emails
 
+        app.post('/contact', async (req, res) => {
+            const contact = req.body;
+            const result = await contactCollection.insertOne(contact);
+            res.send(result);
+        })
+
+        // contact get api
+
+        app.get('/contacts', async (req, res) => {
+            const query = {};
+            const cursor = contactCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
+        // set all
 
 
 
