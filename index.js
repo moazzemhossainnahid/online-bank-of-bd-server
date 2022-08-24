@@ -525,7 +525,23 @@ const run = async () => {
             const feedback = await cursor.toArray();
             res.send(feedback)
         })
+
+        // notice Put API
+        app.put("/notice",async(req,res)=>{
+            const  filter = {}
+            const notice= req.body;
+            const options = {upsert : true};
+            const updateDoc= {
+                $set:{
+                    notice:notice
+                }
+            }
+            console.log(notice);
+            const addNotice= await accountsCollection.updateMany(filter,updateDoc,options);
+            res.send(addNotice);
+        })
         // set all
+
 
 
 
