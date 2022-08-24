@@ -107,7 +107,7 @@ const run = async () => {
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
         const blogsCollection = client.db("BankOfBD").collection("blogs");
-        const profilesCollection = client.db("PCHubBD").collection("Profiles");
+        const profilesCollection = client.db("BankOfBD").collection("Profiles");
 
 
 
@@ -120,7 +120,7 @@ const run = async () => {
                 currency: "usd",
                 payment_method_types:["card"]
             });
-            res.send({clientSecret:paymentIntent.client_secret})
+            res.send({clientSecret:paymentIntent.client_secret});
         })
 
         // post user by email
