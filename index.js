@@ -38,6 +38,7 @@ const verifyToken = (req, res, next) => {
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
 // send email 
 
 // const api = process.env.EMAIL_SENDER_KEY
@@ -51,7 +52,7 @@ const emailOptions = {
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
     console.log(data)
-    const { senderAccount, statement, deposit, withdraw, date, balance, email } = data;
+    const { _id, senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
@@ -62,13 +63,12 @@ const sendEmail = (data) => {
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
             <h2 style="color: green; margin:10px;">Hello Dare!</h2>
             <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
-            <p style="margin:10px;">That's Your Money Transcation Amount:${deposit || withdraw} USD. <span style="text-decornation: underline">28ue98fhw4ywhir8w9e</span></p>
+            <p style="margin:10px;">That's Your Money Transcation Amount: <strong>${deposit || withdraw} $USD.</strong>. <span style="text-decornation: underline">${_id}</span></p>
             <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
         `
     };
-
     console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
@@ -78,9 +78,9 @@ const sendEmail = (data) => {
             console.log("send email ", info);
         }
     })
-
 }
 ///////
+
 
 
 const verifyAdmin = async (req, res, next) => {
@@ -108,6 +108,8 @@ const run = async () => {
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
         const blogsCollection = client.db("BankOfBD").collection("blogs");
         const profilesCollection = client.db("BankOfBD").collection("Profiles");
+        const contactCollection = client.db("BankOfBD").collection("contact")
+
 
 
 
