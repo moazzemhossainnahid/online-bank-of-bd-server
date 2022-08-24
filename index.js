@@ -506,6 +506,25 @@ const run = async () => {
             res.send(profile);
         })
 
+        
+        // Contact us emails
+
+        app.post('/contact', async (req, res) => {
+            const contact = req.body;
+            const result = await contactCollection.insertOne(contact);
+            res.send(result);
+        })
+
+        // contact get api
+
+        app.get('/contacts', async (req, res) => {
+            const query = {};
+            const cursor = contactCollection.find(query);
+            const feedback = await cursor.toArray();
+            res.send(feedback)
+        })
+        // set all
+
 
 
             }
