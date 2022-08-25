@@ -442,6 +442,7 @@ const run = async () => {
             const id=req.params.id;
             const filter = {_id:ObjectId(id)}
             const comment = req.body;
+            
             const updateDoc= {
                 $set:{
                     comment:comment
@@ -538,6 +539,20 @@ const run = async () => {
             const query ={}
             const allNotice= await noticeCollection.find(query).toArray()
             res.send(allNotice);
+        })
+        // user read api patch
+        app.patch("/notice/read/:id",async(req,res)=>{
+            const id= req.params.id
+            const readUsers = req.body;
+            const filter ={_id: ObjectId(id)}
+            console.log(readUsers);
+            const updateDoc= {
+                $set:{
+                    readUsers: readUsers
+                }
+            }
+            const result = await noticeCollection.updateOne(filter, updateDoc);
+            res.send(result)
         })
         // set all
 
