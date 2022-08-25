@@ -109,6 +109,7 @@ const run = async () => {
         const blogsCollection = client.db("BankOfBD").collection("blogs");
         const profilesCollection = client.db("BankOfBD").collection("Profiles");
         const contactCollection = client.db("BankOfBD").collection("contact")
+        const noticeCollection = client.db("BankNotice").collection("notice")
 
 
 
@@ -527,18 +528,10 @@ const run = async () => {
         })
 
         // notice Put API
-        app.put("/notice",async(req,res)=>{
-            const  filter = {}
+        app.post("/notice",async(req,res)=>{
             const notice= req.body;
-            const options = {upsert : true};
-            const updateDoc= {
-                $set:{
-                    notice:notice
-                }
-            }
-            console.log(notice);
-            const addNotice= await accountsCollection.updateMany(filter,updateDoc,options);
-            res.send(addNotice);
+            const newNotice= await noticeCollection.insertOne(notice);
+            res.send(newNotice);
         })
         // set all
 
