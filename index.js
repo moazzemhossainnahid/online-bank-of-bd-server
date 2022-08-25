@@ -62,8 +62,8 @@ const sendEmail = (data) => {
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
             <h2 style="color: green; margin:10px;">Hello Dare!</h2>
-            <p style="font-size: 20px; margin:10px;">Your ${statement} Transcation Completed in ${date}</p>
-            <p style="margin:10px;">That's Your Money Transcation Amount: <strong>${deposit || withdraw} $USD.</strong>. <span style="text-decornation: underline">${_id}</span></p>
+            <p style="font-size: 20px; margin:10px;">Your ${statement} Transaction Completed in ${date}</p>
+            <p style="margin:10px;">That's Your Money Transaction Amount: <strong>${deposit || withdraw} $USD.</strong>. <span style="text-decornation: underline">${_id}</span></p>
             <a href="http://localhost:3000/dashboard/statement" style="margin:10px 10px; padding: 5px 7px; border:2px solid green;border-radius: 7px; color: green; text-decoration: none; font-weight:600;">Go to More</a>
             <button style="background-color:green; padding:10px 25px; outline:none; border:0px; border-radius: 7px; color: white; letter-spacing: 1px; cursor: pointer;">Subscribe Now</button>
         </div>
@@ -109,16 +109,18 @@ const run = async () => {
         const blogsCollection = client.db("BankOfBD").collection("blogs");
         const profilesCollection = client.db("BankOfBD").collection("Profiles");
         const contactCollection = client.db("BankOfBD").collection("contact")
+        const noticeCollection = client.db("BankNotice").collection("notice")
 
 
 
 
         // deposti card payment intent api 
-        app.post("/create-payment-intent", verifyToken, async (req, res) => {
-            const { inputBalance } = req.body;
-            const amount = inputBalance * 100;
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: amount,
+
+        app.post("/create-payment-intent" ,async(req,res)=>{
+            const {inputBalance}=req.body;
+            const amount = inputBalance*100;
+            const paymentIntent =await stripe.paymentIntents.create({
+                amount:amount,
                 currency: "usd",
                 payment_method_types: ["card"]
             });
@@ -136,7 +138,7 @@ const run = async () => {
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
-            res.send({ result, accessToken: token })
+            res.send({ result, accessToken: token });
         })
 
 
@@ -452,18 +454,21 @@ const run = async () => {
             res.send(deleteBlog)
         })
 
-        app.patch("/blog/comment/:id", async (req, res) => {
-            const id = req.params.id
-            const filter = { _id: ObjectId(id) }
+
+        
+        app.patch("/blog/comment/:id",async(req,res)=>{
+            const id=req.params.id;
+            const filter = {_id:ObjectId(id)}
             const comment = req.body;
-            const updateDoc = {
-                $set: {
-                    comment: comment
+            const updateDoc= {
+                $set:{
+                    comment:comment
                 }
             }
             const result = await blogsCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
+        
         //Retail Banking loan details
         app.get('/retailbanking', async (req, res) => {
             const query = {};
@@ -540,11 +545,38 @@ const run = async () => {
             const feedback = await cursor.toArray();
             res.send(feedback)
         })
+
+        // notice Put API
+        app.post("/notice",async(req,res)=>{
+            const notice= req.body;
+            const newNotice= await noticeCollection.insertOne(notice);
+            res.send(newNotice);
+        })
+        // all notice get API
+        app.get("/allNotice",async(req,res)=>{
+            const query ={}
+            const allNotice= await noticeCollection.find(query).toArray()
+            res.send(allNotice);
+        })
+        // user read api patch
+        app.patch("/notice/read/:id",async(req,res)=>{
+            const id= req.params.id
+            const readUsers = req.body;
+            const filter ={_id: ObjectId(id)}
+            const updateDoc= {
+                $set:{
+                    readUsers: readUsers
+                }
+            }
+            const result = await noticeCollection.updateOne(filter, updateDoc);
+            res.send(result)
+        })
         // set all
 
 
 
-    }
+            }
+
     finally {
 
     }
