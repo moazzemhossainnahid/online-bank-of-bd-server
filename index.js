@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
 const emailTransport = require('nodemailer-sendgrid-transport');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -37,6 +38,7 @@ const verifyToken = (req, res, next) => {
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kaegsaq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
 // send email 
 
 // const api = process.env.EMAIL_SENDER_KEY
@@ -54,7 +56,7 @@ const sendEmail = (data) => {
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
-        subject: `Hello Dare, your Account ${senderAccount} have ${statement} `,
+        subject: `Hello Dear, Your Account ${senderAccount} Have ${statement} `,
         text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
         <div style="padding: 20px ;">
@@ -81,6 +83,18 @@ const sendEmail = (data) => {
 
 
 
+const verifyAdmin = async (req, res, next) => {
+    const requester = req.decoded.email;
+    const requesterAccount = await usersCollection.findOne({ email: requester });
+    if (requesterAccount.role === 'admin') {
+        next();
+    }
+    else {
+        res.status(403).send({ message: 'forbidden' });
+    }
+}
+
+
 const run = async () => {
     try {
 
@@ -92,12 +106,24 @@ const run = async () => {
         const feedbackCollection = client.db("BankOfBD").collection("Feedback");
         const smebankingCollection = client.db("BankOfBD").collection("SmeBanking");
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
-        const blogsCollection = client.db("BankOfBD").collection("blogs")
+        const blogsCollection = client.db("BankOfBD").collection("blogs");
+        const profilesCollection = client.db("BankOfBD").collection("Profiles");
         const contactCollection = client.db("BankOfBD").collection("contact")
 
 
 
 
+        // deposti card payment intent api 
+        app.post("/create-payment-intent", verifyToken, async (req, res) => {
+            const { inputBalance } = req.body;
+            const amount = inputBalance * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"]
+            });
+            res.send({ clientSecret: paymentIntent.client_secret });
+        })
 
         // post user by email
         app.put('/user/:email', async (req, res) => {
@@ -142,6 +168,14 @@ const run = async () => {
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             res.send(result);
+        })
+        //get admin api 
+        app.get("/user/isAdmin/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const adminUser = await usersCollection.findOne(query);
+            const isAdmin = adminUser.role === "admin"
+            res.send({ role: isAdmin })
         })
 
 
@@ -221,11 +255,18 @@ const run = async () => {
         // update blog API 
         app.put("/blog/:id", async (req, res) => {
             const id = req.params.id;
-            const blog = req.body
+            const blog = req.body;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
+            console.log(blog);
             const updateDoc = {
-                $set: blog
+                $set: {
+                    title: blog.title,
+                    category: blog.category,
+                    description: blog.description,
+                    picture: blog.picture,
+                    date: blog.date
+                }
             };
             const result = await blogsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
@@ -371,7 +412,7 @@ const run = async () => {
         // feedback get by email**
 
         app.get('/feedbacks/:email', async (req, res) => {
-            const email = req.query.email;
+            const email = req.params.email;
             const query = { email: email };
             const cursor = feedbackCollection.find(query);
             const feedback = await cursor.toArray();
@@ -387,6 +428,7 @@ const run = async () => {
             res.send(result);
 
         })
+
         // blog delete API 
         app.delete("/blog/:id", async (req, res) => {
             const id = req.params.id
@@ -394,8 +436,20 @@ const run = async () => {
             const deleteBlog = await blogsCollection.deleteOne(query)
             res.send(deleteBlog)
         })
-        //Retail Banking loan details
 
+        app.patch("/blog/comment/:id", async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const comment = req.body;
+            const updateDoc = {
+                $set: {
+                    comment: comment
+                }
+            }
+            const result = await blogsCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+        //Retail Banking loan details
         app.get('/retailbanking', async (req, res) => {
             const query = {};
             const cursor = retailbankingCollection.find(query);
@@ -433,6 +487,27 @@ const run = async () => {
             res.send(result);
         })
 
+        // post profile by email
+        app.put('/profile/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: profile,
+            };
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
+        // get profile by email
+        app.get('/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const profile = await profilesCollection.findOne(query);
+            res.send(profile);
+        })
+
 
         // Contact us emails
 
@@ -451,6 +526,8 @@ const run = async () => {
             res.send(feedback)
         })
         // set all
+
+
 
     }
     finally {
