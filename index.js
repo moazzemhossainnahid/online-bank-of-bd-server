@@ -533,6 +533,12 @@ const run = async () => {
             const newNotice= await noticeCollection.insertOne(notice);
             res.send(newNotice);
         })
+        // all notice get API
+        app.get("/allNotice",async(req,res)=>{
+            const query ={}
+            const allNotice= await noticeCollection.find(query).toArray()
+            res.send(allNotice);
+        })
         // set all
 
 
