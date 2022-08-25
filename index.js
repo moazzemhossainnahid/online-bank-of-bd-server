@@ -545,7 +545,6 @@ const run = async () => {
             const id= req.params.id
             const readUsers = req.body;
             const filter ={_id: ObjectId(id)}
-            console.log(readUsers);
             const updateDoc= {
                 $set:{
                     readUsers: readUsers
