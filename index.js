@@ -56,7 +56,7 @@ const sendEmail = (data) => {
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
-        subject: `Hello Dare, your Account ${senderAccount} have ${statement} `,
+        subject: `Hello Dear, Your Account ${senderAccount} Have ${statement} `,
         text: `Your Withdraw complete!, your current Balance ${balance}`,
         html: `
         <div style="padding: 20px ;">
