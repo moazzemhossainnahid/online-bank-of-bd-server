@@ -212,7 +212,7 @@ const run = async () => {
         })
 
         // Approve Account
-        app.put('/account/:accountno', async (req, res) => {
+        app.put('/acc/:accountno', async (req, res) => {
             const accountno = parseInt(req.params.accountno);
             const filter = { AccNo: accountno };
             const options = { upsert: true };
@@ -363,7 +363,6 @@ const run = async () => {
         })
 
         // Load account by account number
-
 
         app.get('/accountno', async (req, res) => {
 
