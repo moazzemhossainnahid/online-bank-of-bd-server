@@ -56,8 +56,13 @@ const sendEmail = (data) => {
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
+<<<<<<< HEAD
         subject: `Hello Dare, your Account ${senderAccount} have ${statement} `,
         text: `Your Withdraw complete!, your current Balance ${balance}`,
+=======
+        subject: `Hello Dear, Your Account ${senderAccount} Have ${statement} `,
+        text: `Your current Balance ${balance}`,
+>>>>>>> 9bd56a57db50250686131b15d04d22690a0bafce
         html: `
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
@@ -210,6 +215,24 @@ const run = async () => {
             res.send(result);
         })
 
+<<<<<<< HEAD
+=======
+        // Approve Account
+        app.put('/acc/:accountno', async (req, res) => {
+            const accountno = parseInt(req.params.accountno);
+            const filter = { AccNo: accountno };
+            const options = { upsert: true };
+            const updateAccountDoc = {
+                $set: {
+                    role: 'approved'
+                }
+            };
+            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
+            res.send(result);
+        })
+
+
+>>>>>>> 9bd56a57db50250686131b15d04d22690a0bafce
         // Deposit Balance and withdraw balance
 
         app.put("/account/:accountId", async (req, res) => {
@@ -347,7 +370,6 @@ const run = async () => {
                 })
 
         // Load account by account number
-
 
         app.get('/accountno', async (req, res) => {
 
