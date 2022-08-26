@@ -57,7 +57,7 @@ const sendEmail = (data) => {
         from: 'sabbirshuvo006@gmail.com',
         to: email,
         subject: `Hello Dear, Your Account ${senderAccount} Have ${statement} `,
-        text: `Your Withdraw complete!, your current Balance ${balance}`,
+        text: `Your current Balance ${balance}`,
         html: `
         <div style="padding: 20px ;">
             <h1 class="font-size: 30px ;">Online <span style="color: green;">Bank BD</span></h1>
@@ -212,7 +212,7 @@ const run = async () => {
         })
 
         // Approve Account
-        app.put('/account/:accountno', async (req, res) => {
+        app.put('/acc/:accountno', async (req, res) => {
             const accountno = parseInt(req.params.accountno);
             const filter = { AccNo: accountno };
             const options = { upsert: true };
@@ -363,7 +363,6 @@ const run = async () => {
         })
 
         // Load account by account number
-
 
         app.get('/accountno', async (req, res) => {
 
