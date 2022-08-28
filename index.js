@@ -159,6 +159,22 @@ const run = async () => {
             res.send(result)
         })
 
+        // profile post api
+        app.put("/profile/:id" ,async(req,res)=>{
+            const id = req.params.id;
+            const filter ={_id: ObjectId(id)};
+            const profile = req.body;
+            const options = {upsert: true};
+            const updateDoc = {
+                $set:{
+                    profile
+                }
+            }
+            console.log(profile);
+            // const result = await profilesCollection.updateOne(filter, updateDoc, options);
+            // res.send(result)
+        })
+
 
         // post admin by email
         app.put('/user/admin/:email', verifyToken, async (req, res) => {
