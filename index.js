@@ -538,6 +538,8 @@ const run = async () => {
             const result = await profilesCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
+
+        // profile image upload
         app.put('/profile/image/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const image = req.body.url;
