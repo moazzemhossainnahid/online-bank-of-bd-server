@@ -246,6 +246,26 @@ const run = async () => {
             res.send(result);
         });
 
+        // Main Account Deposit Balance and withdraw balance
+
+        app.put("/mainaccount/:accno", async (req, res) => {
+
+            const acc = req.params.accno;
+            const updateBalance = req.body;
+            if (updateBal?.depositBal < 0 || updateBal?.depositBal === null) {
+                return
+            }
+            const filter = { AccNo: acc };
+            const options = { upsert: true };
+            const updateAccountDoc = {
+                $set: {
+                    balance: updateBal.depositBal
+                }
+            };
+            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
+            res.send(result);
+        });
+
         //  post blogs api data
         app.post("/blog", async (req, res) => {
             const blog = req.body;
@@ -516,6 +536,23 @@ const run = async () => {
                 $set: profile,
             };
             const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
+        // profile image upload
+        app.put('/profile/image/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const image = req.body.url;
+            const filter = { email: email };
+            const options ={upsert:true}
+            const updatedDoc = {
+                $set: {
+                    image:image,
+                    email:email
+                }
+            };
+            console.log(image);
+            const result = await profilesCollection.updateOne(filter, updatedDoc,options);
             res.send(result);
         })
 
