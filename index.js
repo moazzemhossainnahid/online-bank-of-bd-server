@@ -108,19 +108,20 @@ const run = async () => {
         const retailbankingCollection = client.db("BankOfBD").collection("RetailBanking");
         const blogsCollection = client.db("BankOfBD").collection("blogs");
         const profilesCollection = client.db("BankOfBD").collection("Profiles");
-        const contactCollection = client.db("BankOfBD").collection("contact")
-        const noticeCollection = client.db("BankNotice").collection("notice")
+        const contactCollection = client.db("BankOfBD").collection("contact");
+        const noticeCollection = client.db("BankNotice").collection("notice");
+        const loanRequestCollection = client.db("BankOfBD").collection("loanRequest");
 
 
 
 
         // deposti card payment intent api 
 
-        app.post("/create-payment-intent" ,async(req,res)=>{
-            const {inputBalance}=req.body;
-            const amount = inputBalance*100;
-            const paymentIntent =await stripe.paymentIntents.create({
-                amount:amount,
+        app.post("/create-payment-intent", async (req, res) => {
+            const { inputBalance } = req.body;
+            const amount = inputBalance * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
                 currency: "usd",
                 payment_method_types: ["card"]
             });
@@ -253,7 +254,7 @@ const run = async () => {
             const id = req.params.id;
             const updateBal = req.body;
             // console.log(updateBal.bal);
-            const filter =  { _id: ObjectId(id) };;
+            const filter = { _id: ObjectId(id) };;
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
@@ -473,20 +474,20 @@ const run = async () => {
         })
 
 
-        
-        app.patch("/blog/comment/:id",async(req,res)=>{
-            const id=req.params.id;
-            const filter = {_id:ObjectId(id)}
+
+        app.patch("/blog/comment/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const comment = req.body;
-            const updateDoc= {
-                $set:{
-                    comment:comment
+            const updateDoc = {
+                $set: {
+                    comment: comment
                 }
             }
             const result = await blogsCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
-        
+
         //Retail Banking loan details
         app.get('/retailbanking', async (req, res) => {
             const query = {};
@@ -543,15 +544,15 @@ const run = async () => {
             const email = req.params.email;
             const image = req.body.url;
             const filter = { email: email };
-            const options ={upsert:true}
+            const options = { upsert: true }
             const updatedDoc = {
                 $set: {
-                    image:image,
-                    email:email
+                    image: image,
+                    email: email
                 }
             };
             // console.log(image);
-            const result = await profilesCollection.updateOne(filter, updatedDoc,options);
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
 
@@ -582,35 +583,41 @@ const run = async () => {
         })
 
         // notice Put API
-        app.post("/notice",async(req,res)=>{
-            const notice= req.body;
-            const newNotice= await noticeCollection.insertOne(notice);
+        app.post("/notice", async (req, res) => {
+            const notice = req.body;
+            const newNotice = await noticeCollection.insertOne(notice);
             res.send(newNotice);
         })
         // all notice get API
-        app.get("/allNotice",async(req,res)=>{
-            const query ={}
-            const allNotice= await noticeCollection.find(query).toArray()
+        app.get("/allNotice", async (req, res) => {
+            const query = {}
+            const allNotice = await noticeCollection.find(query).toArray()
             res.send(allNotice);
         })
         // user read api patch
-        app.patch("/notice/read/:id",async(req,res)=>{
-            const id= req.params.id
+        app.patch("/notice/read/:id", async (req, res) => {
+            const id = req.params.id
             const readUsers = req.body;
-            const filter ={_id: ObjectId(id)}
-            const updateDoc= {
-                $set:{
+            const filter = { _id: ObjectId(id) }
+            const updateDoc = {
+                $set: {
                     readUsers: readUsers
                 }
             }
             const result = await noticeCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
+
+        // Loan post Api
+
+        app.post("/applyLoan", async (req, res) => {
+            const loanDesc = req.body;            
+            const loan = await loanRequestCollection.insertOne(loanDesc);
+            res.send(loan);
+        })
+
         // set all
-
-
-
-            }
+    }
 
     finally {
 
