@@ -581,7 +581,7 @@ const run = async () => {
             res.send(feedback)
         })
 
-        // notice Put API
+        // notice Post API
         app.post("/notice",async(req,res)=>{
             const notice= req.body;
             const newNotice= await noticeCollection.insertOne(notice);
@@ -607,9 +607,6 @@ const run = async () => {
             res.send(result)
         })
         // set all
-
-
-
             }
 
     finally {
