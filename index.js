@@ -336,6 +336,8 @@ const run = async () => {
             res.send(accounts);
         })
 
+       
+
         // Load statement by email
 
         app.get('/statements', async (req, res) => {
@@ -613,8 +615,18 @@ const run = async () => {
         app.post("/applyLoan", async (req, res) => {
             const loanDesc = req.body;            
             const loan = await loanRequestCollection.insertOne(loanDesc);
-            res.send(loan);
+            res.send(loan);           
         })
+
+        // Request Loan Get API
+
+        app.get("/loanRequests", async (req, res) => {
+            const query = {};
+            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            res.send(allLoanRequests);
+        })
+
+
 
         // set all
     }
