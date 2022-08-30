@@ -69,13 +69,13 @@ const sendEmail = (data) => {
         </div>
         `
     };
-    console.log("Email Sent");
+    // console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
             console.log(err);
         }
         else {
-            console.log("send email ", info);
+            // console.log("send email ", info);
         }
     })
 }
@@ -248,28 +248,27 @@ const run = async () => {
 
         // Main Account Deposit Balance and withdraw balance
 
-        app.put("/mainaccount/:accno", async (req, res) => {
+        app.put("/mainaccount/:id", async (req, res) => {
 
-            const acc = req.params.accno;
-            const updateBalance = req.body;
-            if (updateBal?.depositBal < 0 || updateBal?.depositBal === null) {
-                return
-            }
-            const filter = { AccNo: acc };
+            const id = req.params.id;
+            const updateBal = req.body;
+            // console.log(updateBal.bal);
+            const filter =  { _id: ObjectId(id) };;
             const options = { upsert: true };
-            const updateAccountDoc = {
+            const updateDoc = {
                 $set: {
-                    balance: updateBal.depositBal
+                    balance: updateBal.bal
                 }
             };
-            const result = await accountsCollection.updateOne(filter, updateAccountDoc, options);
+            console.log(updateDoc);
+            const result = await accountsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
 
         //  post blogs api data
         app.post("/blog", async (req, res) => {
             const blog = req.body;
-            console.log(blog);
+            // console.log(blog);
             const blogPost = await blogsCollection.insertOne(blog);
             res.send(blogPost)
         })
@@ -422,8 +421,8 @@ const run = async () => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
-            sendEmail(transaction)
-            console.log(transaction)
+            sendEmail(transaction);
+            // console.log(transaction);
             res.send(result);
         })
 
@@ -551,7 +550,7 @@ const run = async () => {
                     email:email
                 }
             };
-            console.log(image);
+            // console.log(image);
             const result = await profilesCollection.updateOne(filter, updatedDoc,options);
             res.send(result);
         })
