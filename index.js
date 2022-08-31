@@ -111,13 +111,14 @@ const run = async () => {
         const contactCollection = client.db("BankOfBD").collection("contact")
         const noticeCollection = client.db("BankNotice").collection("notice")
         const smeapplyloanCollection = client.db("BankLoan").collection("smeapplyloan")
+        const loanRequestCollection = client.db("BankOfBD").collection("loanRequest");
 
 
 
 
         // deposti card payment intent api 
 
-        app.post("/create-payment-intent", verifyToken, async (req, res) => {
+        app.post("/create-payment-intent", async (req, res) => {
             const { inputBalance } = req.body;
             const amount = inputBalance * 100;
             const paymentIntent = await stripe.paymentIntents.create({
@@ -336,6 +337,8 @@ const run = async () => {
             res.send(accounts);
         })
 
+       
+
         // Load statement by email
 
         app.get('/statements', async (req, res) => {
@@ -475,7 +478,7 @@ const run = async () => {
 
 
         app.patch("/blog/comment/:id", async (req, res) => {
-            const id = req.params.id
+            const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const comment = req.body;
             const updateDoc = {
@@ -582,11 +585,10 @@ const run = async () => {
             res.send(feedback)
         })
 
-
-        // notice Post API
-        app.post("/notice",async(req,res)=>{
-            const notice= req.body;
-            const newNotice= await noticeCollection.insertOne(notice);
+        // notice Put API
+        app.post("/notice", async (req, res) => {
+            const notice = req.body;
+            const newNotice = await noticeCollection.insertOne(notice);
             res.send(newNotice);
         })
         // all notice get API
@@ -608,6 +610,25 @@ const run = async () => {
             const result = await noticeCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
+
+        // Loan post Api
+
+        app.post("/applyLoan", async (req, res) => {
+            const loanDesc = req.body;            
+            const loan = await loanRequestCollection.insertOne(loanDesc);
+            res.send(loan);           
+        })
+
+        // Request Loan Get API
+
+        app.get("/loanRequests", async (req, res) => {
+            const query = {};
+            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            res.send(allLoanRequests);
+        })
+
+
+
         // set all
 
         // sme loan apply start
@@ -625,7 +646,6 @@ const run = async () => {
             res.send(result)
         })
         // sme loan apply end
-
 
     }
 
