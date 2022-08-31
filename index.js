@@ -51,7 +51,7 @@ const emailOptions = {
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    console.log(data)
+    // console.log(data)
     const { _id, senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
@@ -69,13 +69,13 @@ const sendEmail = (data) => {
         </div>
         `
     };
-    console.log("Email Sent");
+    // console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
-            console.log(err);
+            // console.log(err);
         }
         else {
-            console.log("send email ", info);
+            // console.log("send email ", info);
         }
     })
 }
@@ -110,6 +110,8 @@ const run = async () => {
         const profilesCollection = client.db("BankOfBD").collection("Profiles");
         const contactCollection = client.db("BankOfBD").collection("contact")
         const noticeCollection = client.db("BankNotice").collection("notice")
+        const smeapplyloanCollection = client.db("BankLoan").collection("smeapplyloan")
+        const loanRequestCollection = client.db("BankOfBD").collection("loanRequest");
 
 
 
@@ -246,10 +248,29 @@ const run = async () => {
             res.send(result);
         });
 
+        // Main Account Deposit Balance and withdraw balance
+
+        app.put("/mainaccount/:id", async (req, res) => {
+
+            const id = req.params.id;
+            const updateBal = req.body;
+            // console.log(updateBal.bal);
+            const filter = { _id: ObjectId(id) };;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    balance: updateBal.bal
+                }
+            };
+            // console.log(updateDoc);
+            const result = await accountsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
         //  post blogs api data
         app.post("/blog", async (req, res) => {
             const blog = req.body;
-            console.log(blog);
+            // console.log(blog);
             const blogPost = await blogsCollection.insertOne(blog);
             res.send(blogPost)
         })
@@ -275,7 +296,7 @@ const run = async () => {
             const blog = req.body;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
-            console.log(blog);
+            // console.log(blog);
             const updateDoc = {
                 $set: {
                     title: blog.title,
@@ -315,6 +336,8 @@ const run = async () => {
             const accounts = await cursor.toArray();
             res.send(accounts);
         })
+
+
 
         // Load statement by email
 
@@ -402,8 +425,8 @@ const run = async () => {
         app.post('/statement', async (req, res) => {
             const transaction = req.body;
             const result = await statementCollection.insertOne(transaction);
-            sendEmail(transaction)
-            console.log(transaction)
+            sendEmail(transaction);
+            // console.log(transaction);
             res.send(result);
         })
 
@@ -452,7 +475,6 @@ const run = async () => {
             const deleteBlog = await blogsCollection.deleteOne(query)
             res.send(deleteBlog)
         })
-
 
 
         app.patch("/blog/comment/:id", async (req, res) => {
@@ -519,6 +541,24 @@ const run = async () => {
             res.send(result);
         })
 
+        // profile image upload
+        app.put('/profile/image/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const image = req.body.url;
+            const filter = { email: email };
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {
+                    image: image,
+                    email: email
+                }
+            };
+            // console.log(image);
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
+
         // get profile by email
         app.get('/profile/:email', async (req, res) => {
             const email = req.params.email;
@@ -570,9 +610,42 @@ const run = async () => {
             const result = await noticeCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
+
+        // Loan post Api
+
+        app.post("/applyLoan", async (req, res) => {
+            const loanDesc = req.body;
+            const loan = await loanRequestCollection.insertOne(loanDesc);
+            res.send(loan);
+        })
+
+        // Request Loan Get API
+
+        app.get("/loanRequests", async (req, res) => {
+            const query = {};
+            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            res.send(allLoanRequests);
+        })
+
+
+
         // set all
 
+        // sme loan apply start
 
+        app.post('/smeapplyloan', async (req, res) => {
+            const smeapplyloan = req.body;
+            const result = await smeapplyloanCollection.insertOne(smeapplyloan);
+            res.send(result);
+        })
+
+        app.get('/smeapplyloan', async (req, res) => {
+            const query = {};
+            const cursor = smeapplyloanCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+        // sme loan apply end
 
     }
 
