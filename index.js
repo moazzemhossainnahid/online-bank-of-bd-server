@@ -51,7 +51,7 @@ const emailOptions = {
 }
 const emailClient = nodemailer.createTransport(emailTransport(emailOptions));
 const sendEmail = (data) => {
-    console.log(data)
+    // console.log(data)
     const { _id, senderAccount, statement, deposit, withdraw, date, balance, email } = data;
     const emailTemplate = {
         from: 'sabbirshuvo006@gmail.com',
@@ -72,7 +72,7 @@ const sendEmail = (data) => {
     // console.log("Email Sent");
     emailClient.sendMail(emailTemplate, function (err, info) {
         if (err) {
-            console.log(err);
+            // console.log(err);
         }
         else {
             // console.log("send email ", info);
@@ -262,7 +262,7 @@ const run = async () => {
                     balance: updateBal.bal
                 }
             };
-            console.log(updateDoc);
+            // console.log(updateDoc);
             const result = await accountsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
@@ -296,7 +296,7 @@ const run = async () => {
             const blog = req.body;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
-            console.log(blog);
+            // console.log(blog);
             const updateDoc = {
                 $set: {
                     title: blog.title,
