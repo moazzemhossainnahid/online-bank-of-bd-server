@@ -582,17 +582,11 @@ const run = async () => {
             res.send(feedback)
         })
 
-<<<<<<< HEAD
-        // notice Put API
-        app.post("/notice", async (req, res) => {
-            const notice = req.body;
-            const newNotice = await noticeCollection.insertOne(notice);
-=======
+
         // notice Post API
         app.post("/notice",async(req,res)=>{
             const notice= req.body;
             const newNotice= await noticeCollection.insertOne(notice);
->>>>>>> 7521e4bdf1231c6891896151412fa2f1aa535ef8
             res.send(newNotice);
         })
         // all notice get API
@@ -615,7 +609,6 @@ const run = async () => {
             res.send(result)
         })
         // set all
-<<<<<<< HEAD
 
         // sme loan apply start
 
@@ -635,9 +628,6 @@ const run = async () => {
 
 
     }
-=======
-            }
->>>>>>> 7521e4bdf1231c6891896151412fa2f1aa535ef8
 
     finally {
 
