@@ -234,6 +234,7 @@ const run = async () => {
 
             const id = req.params.accountId;
             const updateBalance = req.body;
+            console.log(updateBalance)
             if (updateBalance.depositBalance < 0 || updateBalance.depositBalance === null) {
                 return
             }
@@ -291,6 +292,7 @@ const run = async () => {
         })
 
         // update blog API 
+        
         app.put("/blog/:id", async (req, res) => {
             const id = req.params.id;
             const blog = req.body;
@@ -627,7 +629,30 @@ const run = async () => {
             res.send(allLoanRequests);
         })
 
+        // Request Loan Get API
 
+        app.get("/loanRequests/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = {email: email };
+            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            res.send(allLoanRequests);
+        })
+
+        // Request Loan Get by Account no
+
+        app.put("/loanRequests/:loanAccount", async (req, res) => {
+            const loanAccount = req.params.loanAccount;
+            const {status} = req.body;            
+            const filter = {loanFromAcc: loanAccount };        
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {                    
+                    status: status
+                }
+            };
+            const loanAccountResult = await loanRequestCollection.updateOne(filter, updatedDoc, options);
+            res.send(loanAccountResult);
+        })
 
         // set all
 
