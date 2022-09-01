@@ -671,9 +671,7 @@ const run = async () => {
             res.send(result)
         })
         // sme loan apply end
-
     }
-
     finally {
 
     }
