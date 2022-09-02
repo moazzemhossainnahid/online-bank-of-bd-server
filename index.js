@@ -111,7 +111,7 @@ const run = async () => {
         const contactCollection = client.db("BankOfBD").collection("contact")
         const noticeCollection = client.db("BankNotice").collection("notice")
         const smeapplyloanCollection = client.db("BankLoan").collection("smeapplyloan")
-        const loanRequestCollection = client.db("BankOfBD").collection("loanRequest");
+        const loanCollection = client.db("BankOfBD").collection("loan");
 
 
 
@@ -617,7 +617,7 @@ const run = async () => {
 
         app.post("/applyLoan", async (req, res) => {
             const loanDesc = req.body;            
-            const loan = await loanRequestCollection.insertOne(loanDesc);
+            const loan = await loanCollection.insertOne(loanDesc);
             res.send(loan);           
         })
 
@@ -625,32 +625,32 @@ const run = async () => {
 
         app.get("/loanRequests", async (req, res) => {
             const query = {};
-            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            const allLoanRequests = await loanCollection.find(query).toArray()
             res.send(allLoanRequests);
         })
 
-        // Request Loan Get API
+        // Request Loan Get API by email
 
         app.get("/loanRequests/:email", async (req, res) => {
             const email = req.params.email;
             const query = {email: email };
-            const allLoanRequests = await loanRequestCollection.find(query).toArray()
+            const allLoanRequests = await loanCollection.find(query).toArray()
             res.send(allLoanRequests);
         })
 
-        // Request Loan Get by Account no
+        // Update Status for loan
 
-        app.put("/loanRequests/:loanAccount", async (req, res) => {
-            const loanAccount = req.params.loanAccount;
+        app.put("/loanRequests/:loanId", async (req, res) => {
+            const loanId = req.params.loanId;
             const {status} = req.body;            
-            const filter = {loanFromAcc: loanAccount };        
+            const filter = {_id: ObjectId(loanId)};        
             const options = { upsert: true }
             const updatedDoc = {
                 $set: {                    
                     status: status
                 }
             };
-            const loanAccountResult = await loanRequestCollection.updateOne(filter, updatedDoc, options);
+            const loanAccountResult = await loanCollection.updateOne(filter, updatedDoc, options);
             res.send(loanAccountResult);
         })
 
