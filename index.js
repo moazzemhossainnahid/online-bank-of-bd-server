@@ -629,6 +629,15 @@ const run = async () => {
             res.send(allLoanRequests);
         })
 
+        // Delete Loan
+
+        app.delete("/loanRequests/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await loanCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // Request Loan Get API by email
 
         app.get("/loanRequests/:email", async (req, res) => {
