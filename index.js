@@ -684,7 +684,6 @@ run().catch(console.dir);
 app.get('/', (req, res) => {
     res.send("Running React Bank of BD Server");
 });
-
 app.listen(port, () => {
     console.log("Listen to Port", port);
 });
